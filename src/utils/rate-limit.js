@@ -4,9 +4,9 @@ const redis = require('../../config/redis')
 const { ipKeyGenerator } = require('express-rate-limit')
 
 function createRateLimiter(
-  max = 5,
-  windowMs = 1 * 60 * 1000,
-  customMessage = 'Too many requests, please try again later.'
+  max = 3,
+  windowMs = 1 * 60 * 2000,
+  customMessage = 'Too many request, try again later.'
 ) {
   return rateLimit({
     store: new RedisStore({

@@ -1,40 +1,35 @@
-const { ZodError } = require('zod')
 const { HttpStatusCode } = require('axios')
 
-const validateRequest = (schema, req) => {
-  try {
-    return schema.parse(req.body)
-  } catch (error) {
-    if (error instanceof ZodError) {
-      const issues = error.issues || error.errors || []
+const validateRequest = (schema, req, source = 'body') => {
+  let data = {}
+  if (source === 'query') data = { ...req.query }
+  else if (source === 'params') data = req.params
+  else data = req.body
 
-      if (!Array.isArray(issues) || issues.length === 0) {
-        throw {
-          code: HttpStatusCode.UnprocessableEntity,
-          message: 'Invalid request body'
-        }
-      }
+  const result = schema.safeParse(data)
 
-      const messages = issues.map((issue) => ({
-        path: issue.path.join('.'),
-        message: issue.message
-      }))
-
-      if (!messages[0] || messages[0].path === '') {
-        throw {
-          code: HttpStatusCode.UnprocessableEntity,
-          message: messages[0]?.message || 'Invalid request body'
-        }
-      }
-
+  if (!result.success) {
+    const issues = result.error.issues || []
+    if (issues.length === 0) {
       throw {
         code: HttpStatusCode.UnprocessableEntity,
-        message: `${messages[0].path}: ${messages[0].message}`
+        message: 'Invalid request'
       }
     }
 
-    throw error
+    const messages = issues.map((issue) => ({
+      path: issue.path.join('.'),
+      message: issue.message
+    }))
+
+    throw {
+      code: HttpStatusCode.UnprocessableEntity,
+      message: messages[0]?.message || 'Invalid request',
+      metadata: { errors: messages }
+    }
   }
+
+  return result.data
 }
 
 const validationFiles = (files, validationRules) => {
@@ -67,9 +62,7 @@ const validationFiles = (files, validationRules) => {
             if (!isValidMime) {
               throw {
                 code: HttpStatusCode.BadRequest,
-                message: `The file format ${name} must be ${allowed_mimes.join(
-                  ', '
-                )}`
+                message: `Format file ${name} harus ${allowed_mimes.join(', ')}`
               }
             }
           }
@@ -78,7 +71,7 @@ const validationFiles = (files, validationRules) => {
             const maxSizeMB = (max_size / (1024 * 1024)).toFixed(1)
             throw {
               code: HttpStatusCode.BadRequest,
-              message: `The maximum file size for ${name} is ${maxSizeMB}MB.`
+              message: `Maksimal pengiriman file ${maxSizeMB}MB.`
             }
           }
         }
