@@ -15,9 +15,9 @@ const allowAll = allowedOriginsRaw === '*'
 const allowedOrigins = allowAll
   ? []
   : allowedOriginsRaw
-    .split(',')
-    .map((origin) => origin.trim())
-    .filter(Boolean)
+      .split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean)
 
 const corsOptions = (req, callback) => {
   const origin = req.headers.origin
