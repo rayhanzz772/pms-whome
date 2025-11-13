@@ -1,12 +1,12 @@
-'use strict'
-
 const fs = require('fs')
 const path = require('path')
 const Sequelize = require('sequelize')
 const process = require('process')
 const basename = path.basename(__filename)
 const env = process.env.NODE_ENV || 'development'
-const config = require('../../config/config')[env]
+
+const config = require(path.join(__dirname, '../../config/config'))[env]
+
 const db = {}
 
 let sequelize
@@ -24,10 +24,7 @@ if (config.use_env_variable) {
 fs.readdirSync(__dirname)
   .filter((file) => {
     return (
-      file.indexOf('.') !== 0 &&
-      file !== basename &&
-      file.slice(-3) === '.js' &&
-      file.indexOf('.test.js') === -1
+      file.indexOf('.') !== 0 && file !== basename && file.slice(-3) === '.js'
     )
   })
   .forEach((file) => {
@@ -46,7 +43,5 @@ Object.keys(db).forEach((modelName) => {
 
 db.sequelize = sequelize
 db.Sequelize = Sequelize
-// DASHBOARD MODULES
-// db.web_setting = require('./web-setting')(sequelize, Sequelize)
 
 module.exports = db

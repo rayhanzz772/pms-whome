@@ -3,6 +3,7 @@ const redis = require('../../config/redis')
 const setCache = async (key, value) => {
   try {
     const todayEnd = Math.floor(new Date().setHours(23, 59, 59, 999) / 1000)
+
     await redis.set(
       key,
       JSON.stringify(value),

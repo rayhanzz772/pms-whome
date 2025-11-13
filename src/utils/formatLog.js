@@ -12,6 +12,7 @@ function formatLog(oldRow, newRow, fields) {
     const str = String(val)
     return str.length > maxLen ? str.slice(0, maxLen) + '…' : str
   }
+
   fields.forEach((field) => {
     const oldValue = oldRow[field]
     const newValue = newRow[field]
